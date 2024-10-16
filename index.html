@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotes in Two Modes</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: 'Times New Roman', serif;
+            overflow: hidden;
+            margin: 0;
+            transition: background-color 0.5s, color 0.5s;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+
+        body.dark-mode {
+            background-color: #111;
+            color: #eee;
+        }
+
+        .quote-container {
+            text-align: center;
+            max-width: 600px;
+            padding: 20px;
+            border: 2px solid #333;
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            opacity: 0;
+            animation: fadeIn 0.5s forwards, slideIn 0.5s forwards;
+        }
+
+        body.dark-mode .quote-container {
+            background-color: rgba(34, 34, 34, 0.9);
+            border-color: #eee;
+        }
+
+        .quote {
+            font-size: 2em;
+            line-height: 1.4;
+        }
+
+        .switch {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 80px;
+            height: 80px;
+            background-color: #ffcc00;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            outline: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 3em;
+            transition: transform 0.3s;
+            z-index: 10;
+        }
+
+        .switch:hover {
+            transform: scale(1.2) rotate(360deg);
+        }
+
+        .burst {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: red;
+            border-radius: 50%;
+            animation: particle 1s ease-in-out forwards;
+            pointer-events: none;
+        }
+
+        @keyframes particle {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.5) translate(100px, -100px);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(20px); }
+            to { transform: translateY(0); }
+        }
+
+        footer {
+            position: absolute;
+            bottom: 10px;
+            text-align: center;
+            font-size: 1.5em;
+            color: #fff;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+        }
+
+        footer a {
+            color: #ffcc00;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        footer a:hover {
+            color: #fff;
+        }
+
+        @media (max-width: 600px) {
+            .quote {
+                font-size: 1.5em;
+            }
+
+            cite {
+                font-size: 1.2em;
+            }
+
+            .switch {
+                width: 60px;
+                height: 60px;
+                font-size: 2.5em;
+            }
+
+            footer {
+                font-size: 1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="quote-container">
+        <blockquote class="quote" id="quote-text">
+            "Let's do it. We have to do something to do ."
+            
+        </blockquote>
+    </div>
+
+    <button id="mode-switch" class="switch sun" aria-label="Toggle Dark/Light Mode">🌞</button>
+
+    <footer>
+        <p>Created by <a href="https://www.instagram.com/__sai__avinash__/" target="_blank">Sai Avinash</a></p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            let isDarkMode = false;
+            const body = document.body;
+            const quoteText = document.getElementById('quote-text');
+            const quoteAuthor = document.getElementById('quote-author');
+            const switchButton = document.getElementById('mode-switch');
+            const container = document.querySelector('.quote-container');
+
+            // Trigger initial animation on load
+            container.style.opacity = 1;
+
+            function toggleMode() {
+                isDarkMode = !isDarkMode;
+
+                if (isDarkMode) {
+                    body.classList.add('dark-mode');
+                    quoteText.textContent = "If not this, there's something bigger waiting for you . Trust the process, and you will achieve it all ❤️CC❤️.";
+                    
+                    switchButton.textContent = "🌜";  // Change to moon
+                } else {
+                    body.classList.remove('dark-mode');
+                    quoteText.textContent = "Let's do it. We have to do something to do .";
+                    
+                    switchButton.textContent = "🌞";  // Change to sun
+                }
+
+                // Reset and re-trigger animation
+                container.style.animation = 'none'; // Reset animation
+                container.offsetHeight; // Trigger reflow
+                container.style.animation = ''; // Restart animation
+                createParticleBurst();
+            }
+
+            document.getElementById('mode-switch').addEventListener('click', toggleMode);
+
+            function createParticleBurst() {
+                for (let i = 0; i < 20; i++) {
+                    const particle = document.createElement('div');
+                    particle.classList.add('burst');
+                    particle.style.top = Math.random() * window.innerHeight + 'px';
+                    particle.style.left = Math.random() * window.innerWidth + 'px';
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 1000);
+                }
+            }
+
+            let runAwayTimeout;
+
+            function moveButtonRandomly() {
+                const randomX = Math.random() * (window.innerWidth - switchButton.offsetWidth);
+                const randomY = Math.random() * (window.innerHeight - switchButton.offsetHeight);
+                switchButton.style.left = `${randomX}px`;
+                switchButton.style.top = `${randomY}px`;
+            }
+
+            document.addEventListener('mousemove', (e) => {
+                const mouseX = e.clientX;
+                const mouseY = e.clientY;
+                const buttonRect = switchButton.getBoundingClientRect();
+                const distX = Math.abs(buttonRect.left + buttonRect.width / 2 - mouseX);
+                const distY = Math.abs(buttonRect.top + buttonRect.height / 2 - mouseY);
+
+                if (distX < 150 && distY < 150) {
+                    if (!runAwayTimeout) {
+                        runAwayTimeout = setTimeout(() => {
+                            moveButtonRandomly();
+                            toggleMode();
+                        }, 30000);
+                    }
+                } else {
+                    clearTimeout(runAwayTimeout);
+                    runAwayTimeout = null;
+                }
+            });
+        });
+    </script>
+</body>
+</html>
